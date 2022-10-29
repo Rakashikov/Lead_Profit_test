@@ -1,3 +1,4 @@
 /vendor
 /Task 1/.env
 /Task 3/datafiles/*
+!/Task 3/datafiles/.gitkeep
