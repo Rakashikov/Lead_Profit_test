@@ -1,0 +1,89 @@
+Вариант оптимизации запроса:
+SELECT link.`data_id`, data.`date`, data.`value`, link.`info_id`, info.`name`, info.`desc` 
+FROM data, link, info 
+WHERE (link.info_id, link.data_id) = (info.id, data.id)
+
+1. После оператора SELECT лучше писать конкретные имена столбцов
+2. Из-за выбора всех столбцов, происходит задвоение информации (data.id, link.data_id и info.id, link.info_id)
+3. Условие можно сократить
+
+Вариант оптимизации таблиц:
+1. Уменьшение количества таблиц. В случае, если свзяь многие ко многим не нужна,
+можно использовать либо одну таблицу (один к одному), либо две таблицы (один ко многим)
+
+1.1 Одна таблица.
+
+CREATE TABLE `data` (
+    `id` int(11) NOT NULL auto_increment,
+    `date` date NOT NULL,
+    `value` int(11) NOT NULL,
+    `name` varchar(255) NOT NULL,
+    `desc` text default NULL,
+    PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+
+1.2 Две таблицы.
+
+CREATE TABLE `info` (
+        `id` int(11) NOT NULL auto_increment,
+        `name` varchar(255) default NULL,
+        `desc` text default NULL,
+        PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+
+CREATE TABLE `data` (
+        `id` int(11) NOT NULL auto_increment,
+        `date` date default NULL,
+        `value` INT(11) default NULL,
+        `info_id` int(11) default NULL,
+        PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+
+2. Добавлние индексов. Индексы нужны для ускорения поиска по таблице.
+
+CREATE TABLE `data` (
+        `id` int(11) NOT NULL auto_increment,
+        `date` date default NULL,
+        `value` INT(11) default NULL,
+        PRIMARY KEY (`id`),
+        INDEX `date` (`date`)
+) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+
+CREATE TABLE `info` (
+        `id` int(11) NOT NULL auto_increment,
+        `name` varchar(255) default NULL,
+        `desc` text default NULL,
+        PRIMARY KEY (`id`),
+        INDEX `name` (`name`)
+) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+
+CREATE TABLE `link` (
+        `data_id` int(11) default NULL,
+        `info_id` int(11) default NULL,
+        INDEX `data_id` (`data_id`),
+        INDEX `info_id` (`info_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+
+3. Добавление внешних ключей. Внешние ключи нужны для того, 
+чтобы при удалении или изменении записи из одной таблицы, происходили изменения в других таблицах.
+
+CREATE TABLE `info` (
+        `id` int(11) NOT NULL auto_increment,
+        `name` varchar(255) default NULL,
+        `desc` text default NULL,
+        PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+
+CREATE TABLE `data` (
+        `id` int(11) NOT NULL auto_increment,
+        `date` date default NULL,
+        `value` INT(11) default NULL,
+        PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+
+CREATE TABLE `link` (
+	`data_id` INT(11) NOT NULL,
+	`info_id` INT(11) NOT NULL,
+	CONSTRAINT `FK__data` FOREIGN KEY (`data_id`) REFERENCES `data` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+	CONSTRAINT `FK__info` FOREIGN KEY (`info_id`) REFERENCES `info` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
