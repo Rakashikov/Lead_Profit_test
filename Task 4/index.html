@@ -33,15 +33,15 @@
 </style>
 
 <script>
-    //get all buttons
+    //Получение кнопок
     const buttons = document.querySelectorAll('button');
     
-    //add event listener to each button
+    //Добавление обработчика события на каждую кнопку
     buttons.forEach(button => {
         button.addEventListener('click', () => {
-            //change value of buttons
+            //Изменение значения кнопки
             buttons.forEach(button => {
-                button.innerHTML = (parseInt(button.innerHTML) % 3) + 1;
+                button.innerHTML = (parseInt(button.innerHTML) % buttons.length) + 1;
             });
         });
     });
